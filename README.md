@@ -7,23 +7,19 @@ Node.js
 Express
 
 Banco de dados: PostgreSQL
+Documentação (Swagger):  http://localhost:3000/api-docs/
 
 
 Uso
 A API está disponível na porta configurada (ex: http://localhost:3000).
 
-Endpoints principais
-GET /clientes — Lista todos os clientes
+Entidades:
+cliente
+estado
+pedidos
+produtos
+itenspedido
 
-POST /clientes — Cria um novo cliente
-
-GET /clientes/:id — Busca cliente por ID
-
-PUT /clientes/:id — Atualiza cliente por ID
-
-DELETE /clientes/:id — Remove cliente por ID
-
-(Altere ou adicione endpoints conforme sua API)
 
 Autor
-Cesar Rodrigo Pereira
+Cesar Pereira
