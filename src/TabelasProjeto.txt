@@ -1,0 +1,169 @@
+-- Table: public.cliente
+
+-- DROP TABLE IF EXISTS public.cliente;
+
+CREATE TABLE IF NOT EXISTS public.cliente
+(
+    id_cliente integer NOT NULL DEFAULT nextval('cliente_id_cliente_seq'::regclass),
+    nome character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    cpf character(11) COLLATE pg_catalog."default",
+    email character varying(100) COLLATE pg_catalog."default",
+    telefone character varying(20) COLLATE pg_catalog."default",
+    id_estado integer,
+    data_cadastro timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    ativo boolean DEFAULT true,
+    CONSTRAINT cliente_pkey PRIMARY KEY (id_cliente),
+    CONSTRAINT cliente_cpf_key UNIQUE (cpf),
+    CONSTRAINT cliente_id_estado_fkey FOREIGN KEY (id_estado)
+        REFERENCES public.estado (id_estado) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.cliente
+    OWNER to postgres;
+
+COMMENT ON TABLE public.cliente
+    IS 'Tabela de cadastro de clientes';
+
+COMMENT ON COLUMN public.cliente.nome
+    IS 'Nome completo do cliente';
+
+COMMENT ON COLUMN public.cliente.cpf
+    IS 'CPF do cliente (apenas números)';
+
+COMMENT ON COLUMN public.cliente.email
+    IS 'Endereço de e-mail do cliente';
+
+COMMENT ON COLUMN public.cliente.id_estado
+    IS 'Chave estrangeira para o estado do cliente';
+
+
+
+
+
+-- Table: public.estado
+
+-- DROP TABLE IF EXISTS public.estado;
+
+CREATE TABLE IF NOT EXISTS public.estado
+(
+    id_estado integer NOT NULL DEFAULT nextval('estado_id_estado_seq'::regclass),
+    nome character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    uf character(2) COLLATE pg_catalog."default" NOT NULL,
+    data_cadastro timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT estado_pkey PRIMARY KEY (id_estado),
+    CONSTRAINT uf_unique UNIQUE (uf)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.estado
+    OWNER to postgres;
+
+COMMENT ON TABLE public.estado
+    IS 'Tabela que armazena os estados da federação';
+
+COMMENT ON COLUMN public.estado.nome
+    IS 'Nome completo do estado';
+
+COMMENT ON COLUMN public.estado.uf
+    IS 'Sigla do estado (2 caracteres)';
+
+
+
+
+-- Table: public.itenspedido
+
+-- DROP TABLE IF EXISTS public.itenspedido;
+
+CREATE TABLE IF NOT EXISTS public.itenspedido
+(
+    id_item integer NOT NULL DEFAULT nextval('itenspedido_id_item_seq'::regclass),
+    id_pedido integer NOT NULL,
+    id_produto integer NOT NULL,
+    quantidade integer NOT NULL DEFAULT 1,
+    preco_unitario numeric(10,2) NOT NULL,
+    desconto numeric(10,2) DEFAULT 0,
+    CONSTRAINT itenspedido_pkey PRIMARY KEY (id_item),
+    CONSTRAINT itenspedido_id_pedido_fkey FOREIGN KEY (id_pedido)
+        REFERENCES public.pedidos (id_pedido) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT itenspedido_id_produto_fkey FOREIGN KEY (id_produto)
+        REFERENCES public.produtos (id_produto) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.itenspedido
+    OWNER to postgres;
+
+COMMENT ON TABLE public.itenspedido
+    IS 'Tabela de itens que compõem cada pedido';
+
+
+
+
+-- Table: public.pedidos
+
+-- DROP TABLE IF EXISTS public.pedidos;
+
+CREATE TABLE IF NOT EXISTS public.pedidos
+(
+    id_pedido integer NOT NULL DEFAULT nextval('pedidos_id_pedido_seq'::regclass),
+    id_cliente integer NOT NULL,
+    data_pedido timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    status character varying(20) COLLATE pg_catalog."default" DEFAULT 'Pendente'::character varying,
+    valor_total numeric(10,2) DEFAULT 0,
+    forma_pagamento character varying(30) COLLATE pg_catalog."default",
+    observacoes text COLLATE pg_catalog."default",
+    CONSTRAINT pedidos_pkey PRIMARY KEY (id_pedido),
+    CONSTRAINT pedidos_id_cliente_fkey FOREIGN KEY (id_cliente)
+        REFERENCES public.cliente (id_cliente) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.pedidos
+    OWNER to postgres;
+
+COMMENT ON TABLE public.pedidos
+    IS 'Tabela de pedidos dos clientes';
+
+COMMENT ON COLUMN public.pedidos.status
+    IS 'Status do pedido: Pendente, Processando, Enviado, Entregue, Cancelado';
+
+COMMENT ON COLUMN public.pedidos.valor_total
+    IS 'Valor total do pedido (calculado automaticamente)';
+
+
+
+
+-- Table: public.produtos
+
+-- DROP TABLE IF EXISTS public.produtos;
+
+CREATE TABLE IF NOT EXISTS public.produtos
+(
+    id_produto integer NOT NULL DEFAULT nextval('produtos_id_produto_seq'::regclass),
+    nome character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    descricao text COLLATE pg_catalog."default",
+    preco numeric(10,2) NOT NULL,
+    estoque integer DEFAULT 0,
+    CONSTRAINT produtos_pkey PRIMARY KEY (id_produto)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.produtos
+    OWNER to postgres;
+
+COMMENT ON TABLE public.produtos
+    IS 'Tabela de produtos disponíveis para venda';
