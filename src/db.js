@@ -1,7 +1,5 @@
 require('dotenv').config();
 const { Pool } = require('pg');
-//console.log('Senha do banco:', process.env.DB_PASSWORD);
-
 
 const pool = new Pool({
   user: process.env.DB_USER,
@@ -11,7 +9,4 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-module.exports = {
-  query: (text, params) => pool.query(text, params),
-  pool,
-};
+module.exports = pool;
