@@ -53,7 +53,7 @@ exports.getItensPorPedido = async (req, res) => {
 
 const { recalcularValorTotal } = require('./pedidosController'); // adicione no topo
 
-// POST /itenspedido
+// POST /itens-pedido
 exports.criarItem = async (req, res) => {
   const { id_pedido, id_produto, quantidade, preco_unitario, desconto } = req.body;
 
@@ -66,6 +66,9 @@ exports.criarItem = async (req, res) => {
     const valores = [id_pedido, id_produto, quantidade, preco_unitario, desconto ?? 0];
     const resultado = await db.query(sql, valores);
 
+    // Recalcular valor total do pedido
+    await recalcularValorTotal(id_pedido);
+
     res.status(201).json(resultado.rows[0]);
   } catch (err) {
     console.error('Erro ao criar item de pedido:', err);
@@ -73,7 +76,7 @@ exports.criarItem = async (req, res) => {
   }
 };
 
-// PUT /itenspedido/:id
+// PUT /itens-pedido/:id
 exports.atualizarItem = async (req, res) => {
   const { id } = req.params;
   const { id_pedido, id_produto, quantidade, preco_unitario, desconto } = req.body;
@@ -96,6 +99,9 @@ exports.atualizarItem = async (req, res) => {
       return res.status(404).json({ mensagem: 'Item não encontrado para atualizar' });
     }
 
+    // Recalcular valor total do pedido
+    await recalcularValorTotal(id_pedido);
+
     res.json(resultado.rows[0]);
   } catch (err) {
     console.error('Erro ao atualizar item de pedido:', err);
@@ -103,7 +109,7 @@ exports.atualizarItem = async (req, res) => {
   }
 };
 
-// DELETE /itenspedido/:id
+// DELETE /itens-pedido/:id
 exports.deletarItem = async (req, res) => {
   const { id } = req.params;
 
@@ -113,6 +119,11 @@ exports.deletarItem = async (req, res) => {
     if (resultado.rows.length === 0) {
       return res.status(404).json({ mensagem: 'Item não encontrado para deletar' });
     }
+
+    const itemDeletado = resultado.rows[0];
+    
+    // Recalcular valor total do pedido
+    await recalcularValorTotal(itemDeletado.id_pedido);
 
     res.json({ mensagem: 'Item deletado com sucesso' });
   } catch (err) {

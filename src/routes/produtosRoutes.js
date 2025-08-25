@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const produtoController = require('../controllers/produtosController');
+const { validateProduto, validateId } = require('../middleware/validation');
 
 /**
  * @swagger
@@ -40,7 +41,7 @@ router.get('/', produtoController.listarProdutos);
  *       404:
  *         description: Produto não encontrado
  */
-router.get('/:id', produtoController.getProdutoById);
+router.get('/:id', validateId, produtoController.getProdutoById);
 
 /**
  * @swagger
@@ -65,7 +66,7 @@ router.get('/:id', produtoController.getProdutoById);
  *       201:
  *         description: Produto criado com sucesso
  */
-router.post('/', produtoController.criarProduto);
+router.post('/', validateProduto, produtoController.criarProduto);
 
 /**
  * @swagger
@@ -99,7 +100,7 @@ router.post('/', produtoController.criarProduto);
  *       404:
  *         description: Produto não encontrado
  */
-router.put('/:id', produtoController.atualizarProduto);
+router.put('/:id', validateId, validateProduto, produtoController.atualizarProduto);
 
 /**
  * @swagger
@@ -120,6 +121,6 @@ router.put('/:id', produtoController.atualizarProduto);
  *       404:
  *         description: Produto não encontrado
  */
-router.delete('/:id', produtoController.deletarProduto);
+router.delete('/:id', validateId, produtoController.deletarProduto);
 
 module.exports = router;

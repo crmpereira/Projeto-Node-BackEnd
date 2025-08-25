@@ -21,7 +21,7 @@ async function login(req, res) {
 
     const token = jwt.sign(
       { id: user.id, email: user.email },
-      'segredo123', // Use variável ambiente para segredos
+      process.env.JWT_SECRET || 'segredo123',
       { expiresIn: '1h' }
     );
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const clienteController = require('../controllers/clientesController');
+const { validateCliente, validateId } = require('../middleware/validation');
 
 /**
  * @swagger
@@ -40,7 +41,49 @@ router.get('/', clienteController.listarClientes);
  *       404:
  *         description: Cliente não encontrado
  */
-router.get('/:id', clienteController.getClienteById);
+router.get('/:id', validateId, clienteController.getClienteById);
+
+/**
+ * @swagger
+ * /clientes:
+ *   post:
+ *     summary: Cria um novo cliente
+ *     tags: [Clientes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nome
+ *             properties:
+ *               nome:
+ *                 type: string
+ *                 description: Nome completo do cliente
+ *               cpf:
+ *                 type: string
+ *                 description: CPF do cliente (apenas números)
+ *               email:
+ *                 type: string
+ *                 description: Email do cliente
+ *               telefone:
+ *                 type: string
+ *                 description: Telefone do cliente
+ *               id_estado:
+ *                 type: integer
+ *                 description: ID do estado do cliente
+ *               ativo:
+ *                 type: boolean
+ *                 description: Status ativo do cliente
+ *                 default: true
+ *     responses:
+ *       201:
+ *         description: Cliente criado com sucesso
+ *       400:
+ *         description: Dados inválidos ou CPF/Email já cadastrado
+ */
+router.post('/', validateCliente, clienteController.criarCliente);
 
 /**
  * @swagger
@@ -78,7 +121,7 @@ router.get('/:id', clienteController.getClienteById);
  *       404:
  *         description: Cliente não encontrado
  */
-router.put('/:id', clienteController.atualizarCliente);
+router.put('/:id', validateId, validateCliente, clienteController.atualizarCliente);
 
 /**
  * @swagger
@@ -99,6 +142,6 @@ router.put('/:id', clienteController.atualizarCliente);
  *       404:
  *         description: Cliente não encontrado
  */
-router.delete('/:id', clienteController.deletarCliente);
+router.delete('/:id', validateId, clienteController.deletarCliente);
 
 module.exports = router;

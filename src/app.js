@@ -10,6 +10,7 @@ const produtosRoutes = require('./routes/produtosRoutes');
 const pedidosRoutes = require('./routes/pedidosRoutes');
 const itensPedidoRoutes = require('./routes/itensPedidoRoutes');
 const authRoutes = require('./routes/authRoutes');
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 require('dotenv').config();
 
@@ -19,8 +20,13 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(express.json());
 
+// Configuração do CORS
+const corsOrigins = process.env.CORS_ORIGINS ? process.env.CORS_ORIGINS.split(',') : ['http://localhost:3000'];
 app.use(cors({
-  origin: "http://localhost:3000"   // libera só para o frontend React
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 
@@ -29,11 +35,14 @@ app.use('/clientes', clientesRoutes);
 app.use('/estados', estadosRoutes);
 app.use('/produtos', produtosRoutes);
 app.use('/pedidos', pedidosRoutes);
-app.use('/itenspedido', itensPedidoRoutes);
+app.use('/itens-pedido', itensPedidoRoutes);
 app.use('/api', authRoutes);
 
-//const PORT = process.env.PORT || 5000;
-const PORT = 5000;
+// Middleware de tratamento de erros (deve vir por último)
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+const PORT = process.env.PORT || 5000;
 
 sequelize.sync()
   .then(() => {

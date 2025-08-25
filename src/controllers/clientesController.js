@@ -1,5 +1,41 @@
 const db = require('../db');
 
+// POST /clientes
+exports.criarCliente = async (req, res) => {
+  const { nome, cpf, email, telefone, id_estado, ativo = true } = req.body;
+
+  try {
+    // Verificar se CPF já existe
+    if (cpf) {
+      const cpfExistente = await db.query('SELECT id_cliente FROM cliente WHERE cpf = $1', [cpf]);
+      if (cpfExistente.rows.length > 0) {
+        return res.status(400).json({ error: 'CPF já cadastrado' });
+      }
+    }
+
+    // Verificar se email já existe
+    if (email) {
+      const emailExistente = await db.query('SELECT id_cliente FROM cliente WHERE email = $1', [email]);
+      if (emailExistente.rows.length > 0) {
+        return res.status(400).json({ error: 'Email já cadastrado' });
+      }
+    }
+
+    const sql = `
+      INSERT INTO cliente (nome, cpf, email, telefone, id_estado, ativo)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `;
+    const valores = [nome, cpf, email, telefone, id_estado, ativo];
+    const resultado = await db.query(sql, valores);
+
+    res.status(201).json(resultado.rows[0]);
+  } catch (err) {
+    console.error('Erro ao criar cliente:', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // GET /clientes
 exports.listarClientes = async (req, res) => {
   try {

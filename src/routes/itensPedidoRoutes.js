@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const itemController = require('../controllers/itensPedidoController');
+const { validateItemPedido, validateId } = require('../middleware/validation');
 
 /**
  * @swagger
@@ -11,7 +12,7 @@ const itemController = require('../controllers/itensPedidoController');
 
 /**
  * @swagger
- * /itenspedido:
+ * /itens-pedido:
  *   get:
  *     summary: Lista todos os itens de pedidos
  *     tags: [ItensPedido]
@@ -23,7 +24,7 @@ router.get('/', itemController.listarItens);
 
 /**
  * @swagger
- * /itenspedido/{id}:
+ * /itens-pedido/{id}:
  *   get:
  *     summary: Obtém um item de pedido pelo ID
  *     tags: [ItensPedido]
@@ -40,11 +41,11 @@ router.get('/', itemController.listarItens);
  *       404:
  *         description: Item não encontrado
  */
-router.get('/:id', itemController.getItemById);
+router.get('/:id', validateId, itemController.getItemById);
 
 /**
  * @swagger
- * /itenspedido/pedido/{id_pedido}:
+ * /itens-pedido/pedido/{id_pedido}:
  *   get:
  *     summary: Lista todos os itens de um pedido específico
  *     tags: [ItensPedido]
@@ -59,11 +60,11 @@ router.get('/:id', itemController.getItemById);
  *       200:
  *         description: Itens retornados com sucesso
  */
-router.get('/pedido/:id_pedido', itemController.getItensPorPedido);
+router.get('/pedido/:id_pedido', validateId, itemController.getItensPorPedido);
 
 /**
  * @swagger
- * /itenspedido:
+ * /itens-pedido:
  *   post:
  *     summary: Cria um novo item de pedido
  *     tags: [ItensPedido]
@@ -84,11 +85,11 @@ router.get('/pedido/:id_pedido', itemController.getItensPorPedido);
  *       201:
  *         description: Item criado com sucesso
  */
-router.post('/', itemController.criarItem);
+router.post('/', validateItemPedido, itemController.criarItem);
 
 /**
  * @swagger
- * /itenspedido/{id}:
+ * /itens-pedido/{id}:
  *   put:
  *     summary: Atualiza um item de pedido
  *     tags: [ItensPedido]
@@ -114,11 +115,11 @@ router.post('/', itemController.criarItem);
  *       404:
  *         description: Item não encontrado
  */
-router.put('/:id', itemController.atualizarItem);
+router.put('/:id', validateId, validateItemPedido, itemController.atualizarItem);
 
 /**
  * @swagger
- * /itenspedido/{id}:
+ * /itens-pedido/{id}:
  *   delete:
  *     summary: Deleta um item de pedido
  *     tags: [ItensPedido]
@@ -135,6 +136,6 @@ router.put('/:id', itemController.atualizarItem);
  *       404:
  *         description: Item não encontrado
  */
-router.delete('/:id', itemController.deletarItem);
+router.delete('/:id', validateId, itemController.deletarItem);
 
 module.exports = router;

@@ -107,7 +107,7 @@ exports.listarPedidosCompletos = async (req, res) => {
 exports.criarPedido = async (req, res) => {
   const { id_cliente, status, forma_pagamento, observacoes, data_pedido, itens } = req.body;
 
-  if (!id_cliente || !data_pedido || !Array.isArray(itens) || itens.length === 0) {
+  if (!id_cliente || !data_pedido || !Array.isArray(itens)) {
     return res.status(400).json({ erro: "Dados incompletos. Informe cliente, data e itens." });
   }
 
@@ -124,16 +124,19 @@ exports.criarPedido = async (req, res) => {
     );
     const id_pedido = pedidoResult.rows[0].id_pedido;
 
-    for (let item of itens) {
-      if (!item.id_produto || !item.quantidade || !item.preco_unitario) {
-        throw new Error("Item inválido. Informe id_produto, quantidade e preco unitario.");
-      }
+    // Inserir itens apenas se existirem
+    if (itens.length > 0) {
+      for (let item of itens) {
+        if (!item.id_produto || !item.quantidade || !item.preco_unitario) {
+          throw new Error("Item inválido. Informe id_produto, quantidade e preco unitario.");
+        }
 
-      await client.query(
-        `INSERT INTO itenspedido (id_pedido, id_produto, quantidade, preco_unitario, desconto)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [id_pedido, item.id_produto, item.quantidade, item.preco_unitario, item.desconto || 0]
-      );
+        await client.query(
+          `INSERT INTO itenspedido (id_pedido, id_produto, quantidade, preco_unitario, desconto)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [id_pedido, item.id_produto, item.quantidade, item.preco_unitario, item.desconto || 0]
+        );
+      }
     }
 
     // Recalcular valor total do pedido
